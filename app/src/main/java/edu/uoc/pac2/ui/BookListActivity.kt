@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
+import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
 
@@ -31,7 +32,9 @@ class BookListActivity : AppCompatActivity() {
         initRecyclerView()
 
         // Get Books
-        getBooks()
+        val hasIntenet : Boolean = ((applicationContext as? MyApplication)?.hasInternetConnection()) ?: false
+        if (hasIntenet)
+                getBooks()
 
         // TODO: Add books data to Firestore [Use once for new projects with empty Firestore Database]
     }
@@ -50,7 +53,8 @@ class BookListActivity : AppCompatActivity() {
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         // Init Adapter
-        adapter = BooksListAdapter(emptyList())
+        val initlist: List<Book> = (applicationContext as? MyApplication)?.getBooksInteractor()?.getAllBooks() ?: emptyList()
+        adapter = BooksListAdapter(initlist)
         recyclerView.adapter = adapter
     }
 
@@ -64,6 +68,8 @@ class BookListActivity : AppCompatActivity() {
             }
             val books: List <Book> = documents.mapNotNull {it.toObject (Book::class .java)}
             adapter.setBooks(books)
+
+            (applicationContext as? MyApplication)?.getBooksInteractor()?.saveBooks(books)
 
         }
         docRef.addOnFailureListener { exception ->
