@@ -14,6 +14,11 @@ class MyApplication : Application() {
         super.onCreate()
         // TODO: Init Room Database
         // TODO: Init BooksInteractor
+
+        // populate firestores database
+        //val mfirestoreBookData = FirestoreBookData;
+        //mfirestoreBookData.addBooksDataToFirestoreDatabase();
+
     }
 
     fun getBooksInteractor(): BooksInteractor {

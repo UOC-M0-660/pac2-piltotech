@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "654431599327",
+    "firebase_url": "https://daada-pec2.firebaseio.com",
+    "project_id": "daada-pec2",
+    "storage_bucket": "daada-pec2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654431599327:android:a95d4be7222a680815876a",
+        "android_client_info": {
+          "package_name": "edu.uoc.pac2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "654431599327-ehkl6vevvsrloio36k10g2dugh7cooo9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKCLXInrFaX3vJWHoCazzOJNw3iiMiJzk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "654431599327-ehkl6vevvsrloio36k10g2dugh7cooo9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
