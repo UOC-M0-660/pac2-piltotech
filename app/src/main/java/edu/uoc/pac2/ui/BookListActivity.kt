@@ -1,14 +1,15 @@
 package edu.uoc.pac2.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import edu.uoc.pac2.MyApplication
+import com.google.firebase.firestore.FirebaseFirestore
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
-import edu.uoc.pac2.data.BooksInteractor
+
 
 /**
  * An activity representing a list of Books.
@@ -18,6 +19,8 @@ class BookListActivity : AppCompatActivity() {
     private val TAG = "BookListActivity"
 
     private lateinit var adapter: BooksListAdapter
+
+    private var db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +56,20 @@ class BookListActivity : AppCompatActivity() {
 
     // TODO: Get Books and Update UI
     private fun getBooks() {
+        val docRef = db.collection("books").get()
+        docRef.addOnSuccessListener { documents ->
+            for (document in documents) {
+                Log.d(TAG, "BookData:" + "${document.id} => ${document.data}")
+                //Log.d(TAG, "BookData:" + "${document.id} => ${document.data.getValue("title").toString()}")
+            }
+            val books: List <Book> = documents.mapNotNull {it.toObject (Book::class .java)}
+            adapter.setBooks(books)
+
+        }
+        docRef.addOnFailureListener { exception ->
+            Log.w(TAG, "Error getting documents: ", exception)
+        }
+
 
     }
 
