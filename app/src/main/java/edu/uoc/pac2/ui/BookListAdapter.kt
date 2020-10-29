@@ -1,14 +1,15 @@
 package edu.uoc.pac2.ui
 
-import android.app.ActivityOptions
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
+import java.io.Serializable
 
 /**
  * Adapter for a list of Books.
@@ -62,6 +63,21 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
         holder.authorView.text = book.author
 
         // TODO: Set View Click Listener
+        holder.mView.setOnClickListener(View.OnClickListener { v ->
+            /*if (mTwoPane) {
+                //if table mode, get details in fragment
+                val fragment = BookDetailFragment.newInstance(holder.mitema)
+                val ft: FragmentTransaction = getSupportFragmentManager().beginTransaction()
+                ft.replace(R.id.book_detail, fragment)
+                ft.commit()
+            } else
+            {*/
+                //if mobile mode, get details in new activity
+                val intent = Intent(v.context, BookDetailActivity::class.java)
+                intent.putExtra(BookDetailFragment.ARG_ITEM_ID, book.uid)
+                v.context.startActivity(intent)
+            //}
+        })
     }
 
     // Returns total items in Adapter
@@ -73,6 +89,6 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val titleView: TextView = view.findViewById(R.id.title)
         val authorView: TextView = view.findViewById(R.id.author)
-    }
+        var mView: View = view}
 
 }

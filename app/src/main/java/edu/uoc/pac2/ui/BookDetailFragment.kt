@@ -1,12 +1,19 @@
 package edu.uoc.pac2.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
+import kotlinx.android.synthetic.main.activity_book_detail.*
+import kotlinx.android.synthetic.main.fragment_book_detail.view.*
+import com.squareup.picasso.Picasso
 
 /**
  * A fragment representing a single Book detail screen.
@@ -14,9 +21,12 @@ import edu.uoc.pac2.data.Book
  */
 class BookDetailFragment : Fragment() {
 
+    lateinit var rootView: View
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_book_detail, container, false)
+        rootView = inflater.inflate(R.layout.fragment_book_detail, container, false)
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -28,12 +38,32 @@ class BookDetailFragment : Fragment() {
 
     // TODO: Get Book for the given {@param ARG_ITEM_ID} Book id
     private fun loadBook() {
-        throw NotImplementedError()
+        if (arguments?.containsKey(ARG_ITEM_ID)!!) {
+            //(applicationContext as?MyApplication)?.getBooksInteractor()?.getBookById(arguments?.getInt(ARG_ITEM_ID)!!)
+            var mitem: Book? = (getActivity()?.getApplicationContext() as MyApplication).getBooksInteractor()?.getBookById(arguments?.getInt(ARG_ITEM_ID)!!)
+            if (mitem != null) {
+                //Log.d("BookListActivityFrag", "Libro:" + "${mitem.id} => ${mitem.author}")
+                initUI(mitem)
+            }
+        }
+        //throw NotImplementedError()
     }
 
     // TODO: Init UI with book details
     private fun initUI(book: Book) {
-        throw NotImplementedError()
+
+        activity?.toolbar_layout?.title = book.title
+
+        rootView.book_author.text = book.author
+        rootView.book_date.text = book.publicationDate
+        rootView.book_detail.text = book.description
+
+        Picasso
+                .with(getActivity()?.getApplicationContext())
+                .load(book.urlImage)
+                .into(rootView.book_image)
+
+ //       //throw NotImplementedError()
     }
 
     // TODO: Share Book Title and Image URL
