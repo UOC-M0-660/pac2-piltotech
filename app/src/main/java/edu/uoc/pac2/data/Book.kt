@@ -10,9 +10,7 @@ import java.util.*
 
 @Entity(tableName = "book_entity")
 data class Book(
-        @PrimaryKey(autoGenerate = true)
-        val id: Int = 0,
-
+        @PrimaryKey
         val uid: Int = 0,
         val title: String? = null,
         val author: String? = null,

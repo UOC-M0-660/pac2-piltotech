@@ -21,7 +21,7 @@ class MyApplication : Application() {
         super.onCreate()
         // TODO: Init Room Database
         localDB = Room.databaseBuilder(this,
-                ApplicationDatabase::class.java,"basedatos-app").allowMainThreadQueries().build()
+                ApplicationDatabase::class.java,"basedatos-app").build()
         //TMP!!!! remove allowMainThreadQueries
 
         // TODO: Init BooksInteractor

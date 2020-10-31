@@ -1,5 +1,6 @@
 package edu.uoc.pac2.ui
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +24,8 @@ class BookListActivity : AppCompatActivity() {
 
     private var db = FirebaseFirestore.getInstance()
 
+    private var booksLocalDB: List<Book> = emptyList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_list)
@@ -32,9 +35,11 @@ class BookListActivity : AppCompatActivity() {
         initRecyclerView()
 
         // Get Books
-        val hasIntenet : Boolean = ((applicationContext as? MyApplication)?.hasInternetConnection()) ?: false
-        if (hasIntenet)
-                getBooks()
+        val hasInternet : Boolean = ((applicationContext as? MyApplication)?.hasInternetConnection()) ?: false
+        if (hasInternet)
+        {
+            getBooks()
+        }
 
         // TODO: Add books data to Firestore [Use once for new projects with empty Firestore Database]
     }
@@ -53,8 +58,8 @@ class BookListActivity : AppCompatActivity() {
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         // Init Adapter
-        val initlist: List<Book> = (applicationContext as? MyApplication)?.getBooksInteractor()?.getAllBooks() ?: emptyList()
-        adapter = BooksListAdapter(initlist)
+        loadBooksFromLocalDb()
+        adapter = BooksListAdapter(booksLocalDB)
         recyclerView.adapter = adapter
     }
 
@@ -69,7 +74,7 @@ class BookListActivity : AppCompatActivity() {
             val books: List <Book> = documents.mapNotNull {it.toObject (Book::class .java)}
             adapter.setBooks(books)
 
-            (applicationContext as? MyApplication)?.getBooksInteractor()?.saveBooks(books)
+            saveBooksToLocalDatabase(books)
 
         }
         docRef.addOnFailureListener { exception ->
@@ -81,11 +86,17 @@ class BookListActivity : AppCompatActivity() {
 
     // TODO: Load Books from Room
     private fun loadBooksFromLocalDb() {
-        throw NotImplementedError()
+
+        AsyncTask.execute {
+            booksLocalDB = (applicationContext as? MyApplication)?.getBooksInteractor()?.getAllBooks() ?: emptyList()
+        }
+        //booksLocalDB = (applicationContext as? MyApplication)?.getBooksInteractor()?.getAllBooks() ?: emptyList()
     }
 
     // TODO: Save Books to Local Storage
     private fun saveBooksToLocalDatabase(books: List<Book>) {
-        throw NotImplementedError()
+        AsyncTask.execute {
+            (applicationContext as? MyApplication)?.getBooksInteractor()?.saveBooks(books)
+        }
     }
 }
