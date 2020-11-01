@@ -7,6 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import com.google.firebase.firestore.FirebaseFirestore
 import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
@@ -26,6 +30,8 @@ class BookListActivity : AppCompatActivity() {
 
     private var booksLocalDB: List<Book> = emptyList()
 
+    lateinit var mAdView : AdView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_list)
@@ -40,6 +46,14 @@ class BookListActivity : AppCompatActivity() {
         {
             getBooks()
         }
+
+        MobileAds.initialize(this) {}
+
+        mAdView = findViewById(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        mAdView.loadAd(adRequest)
+
+
 
         // TODO: Add books data to Firestore [Use once for new projects with empty Firestore Database]
     }
@@ -59,7 +73,7 @@ class BookListActivity : AppCompatActivity() {
         recyclerView.layoutManager = layoutManager
         // Init Adapter
         loadBooksFromLocalDb()
-        adapter = BooksListAdapter(booksLocalDB)
+        adapter = BooksListAdapter(booksLocalDB, this)
         recyclerView.adapter = adapter
     }
 
@@ -89,6 +103,9 @@ class BookListActivity : AppCompatActivity() {
 
         AsyncTask.execute {
             booksLocalDB = (applicationContext as? MyApplication)?.getBooksInteractor()?.getAllBooks() ?: emptyList()
+            runOnUiThread {
+                adapter.setBooks(booksLocalDB)
+            }
         }
         //booksLocalDB = (applicationContext as? MyApplication)?.getBooksInteractor()?.getAllBooks() ?: emptyList()
     }

@@ -1,24 +1,27 @@
 package edu.uoc.pac2.ui
 
+import android.app.Activity
+import android.app.ActivityOptions
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
-import java.io.Serializable
+
 
 /**
  * Adapter for a list of Books.
  */
 
-class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
+class BooksListAdapter(private var books: List<Book>, activity: Activity) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
 
     private val evenViewType = 0
     private val oddViewType = 1
+    private val mActivity = activity
 
     private fun getBook(position: Int): Book {
         return books[position]
@@ -48,6 +51,7 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
             oddViewType -> {
                 LayoutInflater.from(parent.context)
                         .inflate(R.layout.row_book_list_content_odd, parent, false)
+
             }
             else -> {
                 throw IllegalStateException("Unsupported viewType $viewType")
@@ -63,19 +67,12 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
         holder.authorView.text = book.author
 
         // TODO: Set View Click Listener
-        holder.mView.setOnClickListener(View.OnClickListener { v ->
-            /*if (mTwoPane) {
-                //if table mode, get details in fragment
-                val fragment = BookDetailFragment.newInstance(holder.mitema)
-                val ft: FragmentTransaction = getSupportFragmentManager().beginTransaction()
-                ft.replace(R.id.book_detail, fragment)
-                ft.commit()
-            } else
-            {*/
-                //if mobile mode, get details in new activity
-                val intent = Intent(v.context, BookDetailActivity::class.java)
-                intent.putExtra(BookDetailFragment.ARG_ITEM_ID, book.uid)
-                v.context.startActivity(intent)
+        holder.mView.setOnClickListener({ v ->
+            //if mobile mode, get details in new activity
+            val intent = Intent(v.context, BookDetailActivity::class.java)
+            intent.putExtra(BookDetailFragment.ARG_ITEM_ID, book.uid)
+            val options = ActivityOptions.makeSceneTransitionAnimation(mActivity)
+            v.context.startActivity(intent, options.toBundle())
             //}
         })
     }
@@ -86,7 +83,7 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
     }
 
     // Holds an instance to the view for re-use
-    inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleView: TextView = view.findViewById(R.id.title)
         val authorView: TextView = view.findViewById(R.id.author)
         var mView: View = view}

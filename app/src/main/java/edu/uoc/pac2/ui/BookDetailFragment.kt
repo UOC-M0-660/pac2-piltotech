@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.squareup.picasso.Picasso
 import edu.uoc.pac2.MyApplication
@@ -71,6 +72,15 @@ class BookDetailFragment : Fragment()  {
                 .with(getActivity()?.getApplicationContext())
                 .load(book.urlImage)
                 .into(rootView.book_image)
+
+        val titleimage: ImageView? = getActivity()?.findViewById(R.id.book_toolbar_image)
+        if (titleimage != null) {
+            Picasso
+                    .with(getActivity()?.getApplicationContext())
+                    .load(book.urlImage)
+                    .into(titleimage)
+
+        }
 
         //throw NotImplementedError()
     }
