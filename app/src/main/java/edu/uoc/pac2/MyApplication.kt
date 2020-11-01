@@ -1,7 +1,16 @@
 package edu.uoc.pac2
 
 import android.app.Application
-import edu.uoc.pac2.data.*
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
+import androidx.room.Room
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
+import edu.uoc.pac2.data.ApplicationDatabase
+import edu.uoc.pac2.data.BooksInteractor
 
 /**
  * Entry point for the Application.
@@ -9,11 +18,25 @@ import edu.uoc.pac2.data.*
 class MyApplication : Application() {
 
     private lateinit var booksInteractor: BooksInteractor
+    lateinit var localDB: ApplicationDatabase
 
     override fun onCreate() {
         super.onCreate()
         // TODO: Init Room Database
+        localDB = Room.databaseBuilder(this,
+                ApplicationDatabase::class.java, "basedatos-app").build()
+
         // TODO: Init BooksInteractor
+        booksInteractor = BooksInteractor(localDB.bookDao())
+
+        // populate firestores database
+        //val mfirestoreBookData = FirestoreBookData;
+        //mfirestoreBookData.addBooksDataToFirestoreDatabase();
+
+
+
+
+
     }
 
     fun getBooksInteractor(): BooksInteractor {
@@ -22,6 +45,26 @@ class MyApplication : Application() {
 
     fun hasInternetConnection(): Boolean {
         // TODO: Add Internet Check logic.
-        return true
+
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        var isConnected: Boolean
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val nw      = cm.activeNetwork ?: return false
+            val actNw = cm.getNetworkCapabilities(nw) ?: return false
+            isConnected =  when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                //for other device how are able to connect with Ethernet
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                //for check internet over Bluetooth
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+                else -> false
+            }
+        } else {
+            val nwInfo = cm.activeNetworkInfo ?: return false
+            isConnected =  nwInfo.isConnected
+        }
+
+        return isConnected
     }
 }

@@ -1,6 +1,8 @@
 package edu.uoc.pac2.ui
 
+import android.app.Activity
 import android.app.ActivityOptions
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -10,14 +12,16 @@ import androidx.recyclerview.widget.RecyclerView
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
 
+
 /**
  * Adapter for a list of Books.
  */
 
-class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
+class BooksListAdapter(private var books: List<Book>, activity: Activity) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
 
     private val evenViewType = 0
     private val oddViewType = 1
+    private val mActivity = activity
 
     private fun getBook(position: Int): Book {
         return books[position]
@@ -47,6 +51,7 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
             oddViewType -> {
                 LayoutInflater.from(parent.context)
                         .inflate(R.layout.row_book_list_content_odd, parent, false)
+
             }
             else -> {
                 throw IllegalStateException("Unsupported viewType $viewType")
@@ -62,6 +67,14 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
         holder.authorView.text = book.author
 
         // TODO: Set View Click Listener
+        holder.mView.setOnClickListener({ v ->
+            //if mobile mode, get details in new activity
+            val intent = Intent(v.context, BookDetailActivity::class.java)
+            intent.putExtra(BookDetailFragment.ARG_ITEM_ID, book.uid)
+            val options = ActivityOptions.makeSceneTransitionAnimation(mActivity)
+            v.context.startActivity(intent, options.toBundle())
+            //}
+        })
     }
 
     // Returns total items in Adapter
@@ -70,9 +83,9 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
     }
 
     // Holds an instance to the view for re-use
-    inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleView: TextView = view.findViewById(R.id.title)
         val authorView: TextView = view.findViewById(R.id.author)
-    }
+        var mView: View = view}
 
 }

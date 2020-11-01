@@ -1,14 +1,21 @@
 package edu.uoc.pac2.ui
 
+import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
+import com.google.firebase.firestore.FirebaseFirestore
 import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
-import edu.uoc.pac2.data.BooksInteractor
+
 
 /**
  * An activity representing a list of Books.
@@ -19,6 +26,12 @@ class BookListActivity : AppCompatActivity() {
 
     private lateinit var adapter: BooksListAdapter
 
+    private var db = FirebaseFirestore.getInstance()
+
+    private var booksLocalDB: List<Book> = emptyList()
+
+    lateinit var mAdView : AdView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_list)
@@ -28,7 +41,19 @@ class BookListActivity : AppCompatActivity() {
         initRecyclerView()
 
         // Get Books
-        getBooks()
+        val hasInternet : Boolean = ((applicationContext as? MyApplication)?.hasInternetConnection()) ?: false
+        if (hasInternet)
+        {
+            getBooks()
+        }
+
+        MobileAds.initialize(this) {}
+
+        mAdView = findViewById(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        mAdView.loadAd(adRequest)
+
+
 
         // TODO: Add books data to Firestore [Use once for new projects with empty Firestore Database]
     }
@@ -47,22 +72,48 @@ class BookListActivity : AppCompatActivity() {
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         // Init Adapter
-        adapter = BooksListAdapter(emptyList())
+        loadBooksFromLocalDb()
+        adapter = BooksListAdapter(booksLocalDB, this)
         recyclerView.adapter = adapter
     }
 
     // TODO: Get Books and Update UI
     private fun getBooks() {
+        val docRef = db.collection("books").get()
+        docRef.addOnSuccessListener { documents ->
+            for (document in documents) {
+                Log.d(TAG, "BookData:" + "${document.id} => ${document.data}")
+                //Log.d(TAG, "BookData:" + "${document.id} => ${document.data.getValue("title").toString()}")
+            }
+            val books: List <Book> = documents.mapNotNull {it.toObject (Book::class .java)}
+            adapter.setBooks(books)
+
+            saveBooksToLocalDatabase(books)
+
+        }
+        docRef.addOnFailureListener { exception ->
+            Log.w(TAG, "Error getting documents: ", exception)
+        }
+
 
     }
 
     // TODO: Load Books from Room
     private fun loadBooksFromLocalDb() {
-        throw NotImplementedError()
+
+        AsyncTask.execute {
+            booksLocalDB = (applicationContext as? MyApplication)?.getBooksInteractor()?.getAllBooks() ?: emptyList()
+            runOnUiThread {
+                adapter.setBooks(booksLocalDB)
+            }
+        }
+        //booksLocalDB = (applicationContext as? MyApplication)?.getBooksInteractor()?.getAllBooks() ?: emptyList()
     }
 
     // TODO: Save Books to Local Storage
     private fun saveBooksToLocalDatabase(books: List<Book>) {
-        throw NotImplementedError()
+        AsyncTask.execute {
+            (applicationContext as? MyApplication)?.getBooksInteractor()?.saveBooks(books)
+        }
     }
 }
